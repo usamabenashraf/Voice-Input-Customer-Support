@@ -15,5 +15,6 @@ uvicorn api:app --reload
 source venv/bin/activate
 streamlit run main.py
 ```
+> **Note**: Ignore any errors/warnings that occur in the terminal, app will run just fine.
 - Click the “Open browser” button in the pop-up that appears. It will take us to a new page.
 - Hear, we can click the mic icon to record a message and then wait for the apps response.
