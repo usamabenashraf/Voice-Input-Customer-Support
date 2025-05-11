@@ -24,13 +24,6 @@ class CoordinatorAgent:
         self.returns_agent = returns_agent
         self.parser = JsonOutputParser()
         self.extraction_llm = ChatGroq(model="llama3-70b-8192", api_key="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")
-        #self.extraction_llm = LlamaCpp(
-        #    model_path="Phi-3-mini-4k-instruct-q4.gguf",
-        #    temperature=0.1,
-        #    n_threads=4,      # Adjust based on your CPU
-        #    n_batch=128,      # Larger batch for faster token generation
-        #    n_ctx=512
-        #)
         
         self.general_responses = [
             "I specialize in order tracking and returns. For other inquiries, please contact support@example.com",
@@ -49,10 +42,10 @@ class CoordinatorAgent:
             # Must follow instruction:
             - Please make sure spellings are correct
             - Return a JSON with the following format:                                               
-            - Output format:
+            {{
             "Category": "OrdersAgent|ReturnsAgent|GeneralAgent",
             "Reasoning": "Reasoning for the category choice"
-
+            }}
             Query: {input}
             Response:"""
         )
@@ -75,7 +68,7 @@ class CoordinatorAgent:
 
             # Attempt to parse JSON strictly
             result = json.loads(raw_output)
-            
+            print(result)
             # Validate and normalize output
             category = result.get("Category", "").strip()
             reasoning = result.get("Reasoning", "").strip()
@@ -97,7 +90,9 @@ class CoordinatorAgent:
 
     def extract_order_id(self, text: str) -> Optional[str]:
         # First try fast regex extraction
+        text = re.sub(r'(\d)[,\s]+(?=\d)', r'\1', text)
         regex_id = self._regex_extraction(text)
+        
         if regex_id:
             return regex_id
             
@@ -226,10 +221,3 @@ class ReturnsAgent:
             return result.strip()
         except Exception as e:
             return f"Policy check error: {str(e)}"
-
-
-
-
-
-
-
