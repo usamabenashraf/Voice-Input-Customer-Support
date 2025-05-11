@@ -9,7 +9,7 @@ chmod +x run_app.sh
 ./run_app.sh
 ```
 - Meanwhile, Go to the "https://console.groq.com/docs/model/llama3-70b-8192" website, login to the website.
-- Create an API Key, copy the secret key and paste in the line# of agents.py file
+- Create an API Key, copy the secret key and paste in the line#20 of agents.py file
 - Execute the following commands in the terminal:
 ```
 source venv/bin/activate
