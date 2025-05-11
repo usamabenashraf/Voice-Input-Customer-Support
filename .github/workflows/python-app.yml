@@ -34,8 +34,3 @@ jobs:
       run: |
         source venv/bin/activate
         pip install -r requirements.txt
-
-    - name: Initialize database
-      run: |
-        source venv/bin/activate
-        python -c "from database import init_db; init_db()"
