@@ -1,5 +1,5 @@
 # Follow the instructions below to run the app:
-- Click the “Code” drop-down button.
+- Click the “Code” drop-down button on this GitHub repository page.
 - Click the “Codespaces” tab.
 - Click the “+” icon to create a new codespace.
 - Go to the codespace page and wait for it to set up.
