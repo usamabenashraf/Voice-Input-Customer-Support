@@ -13,9 +13,9 @@ def init_db():
                   days_shipped Number)''')
     # Insert more realistic sample data
     c.execute('''INSERT OR IGNORE INTO orders VALUES
-                 ('123456', 'Shipped', 'user@example.com', 'Item1', 31),
+                 ('123456', 'Processing', 'user@example.com', 'Item1', 0),
                  ('123456', 'Shipped', 'user2@example.com', 'Item2', 15),
-                 ('123457', 'Processing', 'user3@example.com', 'Item3', 0),
+                 ('123457', 'Shipped', 'user3@example.com', 'Item3', 31),
                  ('123458', 'Returned', 'user4@example.com', 'Item4', 0)''')
     conn.commit()
     conn.close()
