@@ -4,19 +4,23 @@ from audio_recorder_streamlit import audio_recorder
 import whisper
 from agents import CoordinatorAgent, OrderTrackingAgent, ReturnsAgent
 from database import init_db
+import warnings
+warnings.filterwarnings("ignore", category=RuntimeWarning, message="Tried to instantiate class")
 
 init_db()
 
 def main():
     st.title("Voice-Enabled Customer Service")
     
-    # Initialize session state
+        # Initialize session state
     if 'conversation' not in st.session_state:
         st.session_state.conversation = []
     if 'current_order_id' not in st.session_state:
         st.session_state.current_order_id = None
 
     # Audio recording
+    st.markdown("---")
+    st.subheader("🎙️ Speak your query below")
     audio_bytes = audio_recorder(pause_threshold=2.0)
     
     if audio_bytes:
@@ -44,21 +48,20 @@ def main():
                 )
             else:
                 selected_agent = return_agent
-                agent_response = selected_agent.process( query=user_input)
+                extracted_order_id = coordinator.extract_order_id(user_input)
+                agent_response = selected_agent.process(query=user_input, order_id=extracted_order_id)
         else:  # Handle general responses
             agent_response = {
                 "response": "I can only help with orders and returns. How can I assist you?",
                 "order_id": None
             }
-
         # Update conversation history
         st.session_state.conversation.extend([
             ("user", user_input),
             ("system", f"Routing decision: {agent_type['reasoning']}"),
             ("Customer Service" if agent_type == "GeneralAgent" else agent_type['agent'], agent_response["response"])
         ])
-    
-    # Display formatted conversation
+    # Display formatted conversation first
     for speaker, message in st.session_state.conversation:
         if speaker == "user":
             st.markdown(f"👤 **User:** {message}")
