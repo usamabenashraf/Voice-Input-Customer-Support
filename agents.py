@@ -205,28 +205,30 @@ class ReturnsAgent:
             )
 
     def process(self, query: str, order_id: Optional[str] = None) -> dict:
-        try:
-            result = self.tools[0].run({"query": query})
-            return {
-                "response": result,
-                "order_id": None
-            }
-        except Exception as e:
-            return {
-                "response": f"Error checking policies: {str(e)}",
-                "order_id": None
-            }
-        try:
-            result = self.tools[1].run({"query": order_id})
-            return {
-                "response": result,
-                "order_id": None
-            }
-        except Exception as e:
-            return {
-                "response": f"Please provide order id",
-                "order_id": None
-            }
+        if not order_id:
+            try:
+                result = self.tools[0].run({"query": query})
+                return {
+                    "response": result,
+                    "order_id": None
+                }
+            except Exception as e:
+                return {
+                    "response": f"Error checking policies: {str(e)}",
+                    "order_id": None
+                }
+        else:
+            try:
+                result = self.tools[1].run({"query": order_id})
+                return {
+                    "response": result,
+                    "order_id": None
+                }
+            except Exception as e:
+                return {
+                    "response": f"Please provide order id",
+                    "order_id": None
+                }
     # Use RetrievalQA to generate focused answers from policies
     def check_return_policy(self, query: str) -> str:
         try:
