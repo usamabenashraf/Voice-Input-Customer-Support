@@ -9,12 +9,14 @@ def init_db():
                  (order_id TEXT PRIMARY KEY, 
                   status TEXT, 
                   customer_email TEXT,
-                  items TEXT)''')
+                  items TEXT,
+                  days_shipped Number)''')
     # Insert more realistic sample data
     c.execute('''INSERT OR IGNORE INTO orders VALUES
-                 ('123456', 'Shipped', 'user@example.com', 'Item1,Item2'),
-                 ('123457', 'Processing', 'user2@example.com', 'Item3'),
-                 ('123458', 'Returned', 'return@example.com', 'Item4')''')
+                 ('123456', 'Shipped', 'user@example.com', 'Item1', 31),
+                 ('123456', 'Shipped', 'user2@example.com', 'Item2', 15),
+                 ('123457', 'Processing', 'user3@example.com', 'Item3', 0),
+                 ('123458', 'Returned', 'user4@example.com', 'Item4', 0)''')
     conn.commit()
     conn.close()
 
@@ -24,4 +26,4 @@ def get_order(order_id: str):
     c.execute("SELECT * FROM orders WHERE order_id=?", (order_id,))
     result = c.fetchone()
     conn.close()
-    return dict(zip(['order_id', 'status', 'email', 'items'], result)) if result else None
+    return dict(zip(['order_id', 'status', 'email', 'items', 'days_shipped'], result)) if result else None
