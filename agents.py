@@ -186,6 +186,12 @@ class ReturnsAgent:
                 name="check_return_policy",
                 description="Check return eligibility using policy knowledge base",
                 args_schema=ReturnPolicyInput
+            ),
+            Tool.from_function(
+                func=self.get_order_status,  # Now properly bound
+                name="get_order_return_eligibility",
+                description="Check return eligibility by checking if the item has been shipped not more than 30 days ago",
+                args_schema=ReturnPolicyInput
             )
         ]
         self.return_template = ChatPromptTemplate.from_template("""
@@ -199,27 +205,7 @@ class ReturnsAgent:
             )
 
     def process(self, query: str, order_id: Optional[str] = None) -> dict:
-        """Use the tool instead of direct RAG access"""
         try:
-            if not order_id:
-                return {
-                    "response": "Please provide your order number to check return eligibility.",
-                    "order_id": None
-                }
-
-            order = get_order(order_id)
-            if not order:
-                return {
-                    "response": f"No order found with ID {order_id}.",
-                    "order_id": order_id
-                }
-
-            if order['days_shipped'] > 30:
-                return {
-                    "response": f"Order {order_id} was shipped over 30 days ago and is not eligible for return.",
-                    "order_id": order_id
-                }
-
             result = self.tools[0].run({"query": query})
             return {
                 "response": result,
@@ -228,6 +214,17 @@ class ReturnsAgent:
         except Exception as e:
             return {
                 "response": f"Error checking policies: {str(e)}",
+                "order_id": None
+            }
+        try:
+            result = self.tools[1].run({"query": order_id})
+            return {
+                "response": result,
+                "order_id": None
+            }
+        except Exception as e:
+            return {
+                "response": f"Please provide order id",
                 "order_id": None
             }
     # Use RetrievalQA to generate focused answers from policies
@@ -246,3 +243,15 @@ class ReturnsAgent:
             return result.strip()
         except Exception as e:
             return f"Policy check error: {str(e)}"
+
+    def get_order_status(self, order_id: str) -> str:
+        response = requests.get(f"http://localhost:8000/order/{order_id}")
+        print(response)
+        response.raise_for_status()
+        data = response.json()
+        if data['days_shipped'] >=30:
+            return "Your order is not eleigible for return, it has been more than 30 days since it was shipped"
+        return {
+            "status": data['status'],
+            "data": data['days_shipped']
+        }
