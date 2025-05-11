@@ -31,7 +31,7 @@ class CoordinatorAgent:
             "My expertise is order management. For product questions, try our live chat support"
         ]
         
-        # Update routing prompt
+        # Routing prompt
         self.routing_prompt = ChatPromptTemplate.from_template("""
             # Strictly follow these categories:
                 - OrdersAgent: Order status/shipping questions
@@ -41,7 +41,7 @@ class CoordinatorAgent:
 
             # Must follow instruction:
             - Please make sure spellings are correct
-            - Return a JSON with the following format:                                               
+            - Must follow JSON output format:                                               
             {{
             "Category": "OrdersAgent|ReturnsAgent|GeneralAgent",
             "Reasoning": "Reasoning for the category choice"
@@ -49,7 +49,7 @@ class CoordinatorAgent:
             Query: {input}
             Response:"""
         )
-
+        # Order_id extraction prompt
         self.extraction_prompt = ChatPromptTemplate.from_template("""
             Extract order ID from query or respond with null.
             
@@ -82,7 +82,6 @@ class CoordinatorAgent:
             }
 
         except Exception as e:
-            # Final fallback, not a string — preserve interface contract
             return {
                 "agent": "GeneralAgent",
                 "reasoning": f"Routing failed: {str(e)}"
@@ -134,7 +133,6 @@ class OrderTrackingAgent:
 
     def process(self, query: str, current_order_id: str = None) -> dict:
         order_id = current_order_id
-        print(order_id)
         try:
             if not order_id or len(order_id) < 5:  # Basic validation
                 return {
@@ -143,6 +141,11 @@ class OrderTrackingAgent:
                 }
             
             result = self.tools[0].run({"order_id": order_id})
+            if str(result):
+                return {
+                "response": f"Order {order_id}: {result}",
+                "order_id": order_id
+                }
             return {
                 "response": f"Order {order_id}: {result}",
                 "order_id": order_id
@@ -165,8 +168,11 @@ class OrderTrackingAgent:
 
     def get_order_status(self, order_id: str) -> str:
         response = requests.get(f"http://localhost:8000/order/{order_id}")
+        print(response)
         response.raise_for_status()
         data = response.json()
+        if data['days_shipped'] >=30:
+            return "Your order is not eleigible for return, it has been more than 30 days since it was shipped"
         return data['status']
 
 class ReturnsAgent:
@@ -192,9 +198,28 @@ class ReturnsAgent:
                 """
             )
 
-    def process(self, query: str) -> dict:
+    def process(self, query: str, order_id: Optional[str] = None) -> dict:
         """Use the tool instead of direct RAG access"""
         try:
+            if not order_id:
+                return {
+                    "response": "Please provide your order number to check return eligibility.",
+                    "order_id": None
+                }
+
+            order = get_order(order_id)
+            if not order:
+                return {
+                    "response": f"No order found with ID {order_id}.",
+                    "order_id": order_id
+                }
+
+            if order['days_shipped'] > 30:
+                return {
+                    "response": f"Order {order_id} was shipped over 30 days ago and is not eligible for return.",
+                    "order_id": order_id
+                }
+
             result = self.tools[0].run({"query": query})
             return {
                 "response": result,
