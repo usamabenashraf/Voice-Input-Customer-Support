@@ -1,0 +1,14 @@
+streamlit
+audio-recorder-streamlit
+openai-whisper
+fastapi
+uvicorn
+requests
+langchain
+langchain-community
+langchain-core
+langchain-huggingface
+langchain-groq
+sentence-transformers
+pydantic
+faiss-cpu
