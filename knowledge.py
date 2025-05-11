@@ -5,6 +5,8 @@ from langchain_community.vectorstores import FAISS
 policies = [
     "Returns accepted within 30 days",
     "Electronics must be unopened",
+    "Broken items are not eligible for return",
+    "Used items are not eligible for return",
     "Free returns for premium members"
 ]
 
