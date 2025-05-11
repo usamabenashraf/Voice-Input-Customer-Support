@@ -17,13 +17,13 @@ class OrderTrackerInput(BaseModel):
 
 class ReturnPolicyInput(BaseModel):
     query: str = Field(..., description="User query about return policies")
-
+Key="<Replace with your Llama API key>
 class CoordinatorAgent:
     def __init__(self, order_tracking_agent, returns_agent):
         self.order_tracking_agent = order_tracking_agent
         self.returns_agent = returns_agent
         self.parser = JsonOutputParser()
-        self.extraction_llm = ChatGroq(model="llama3-70b-8192", api_key="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")
+        self.extraction_llm = ChatGroq(model="llama3-70b-8192", api_key=Key)
         
         self.general_responses = [
             "I specialize in order tracking and returns. For other inquiries, please contact support@example.com",
@@ -179,7 +179,7 @@ class ReturnsAgent:
     
     def __init__(self):
         self.rag = build_rag()
-        self.llm = ChatGroq(model="llama3-70b-8192", api_key="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")
+        self.llm = ChatGroq(model="llama3-70b-8192", api_key=Key)
         self.tools = [
             Tool.from_function(
                 func=self.check_return_policy,  # Now properly bound
