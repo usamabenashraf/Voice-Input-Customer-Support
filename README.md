@@ -7,6 +7,9 @@
 ```
 chmod +x run_app.sh
 ./run_app.sh
+```
+Execute the following commands in the terminal:
+```
 source venv/bin/activate
 uvicorn api:app --reload
 ```
